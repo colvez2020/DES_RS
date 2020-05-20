@@ -1,15 +1,28 @@
 #ifndef Control_main_h
 #define Control_main_h
 
-#define CALIBRA    60
-#define NO_CALIBRA 61
+//Segidor linea
+#define FLAG_OPTIC_ADD     1
+#define FLAG_OPTIC_OK     30
+#define FLAG_PID_ADD       4
+#define FLAG_PID_OK       31
+#define FLAG_PID_RESET    32
+#define FLAG_RS_ADD       16
+#define FLAG_RS_OK        33
+#define FLAG_RS_RESET     34
 
-void Setup_Seguidor_linea(char Modo);
-void Mod_Parametros_PID(void);
+
+#define CALIBRA           60
+#define NO_CALIBRA        61
+#define BOTON_PIN         12
+#define BUZZER_PIN        10
+
+void Setup_Seguidor_linea(void);
+boolean Mod_Parametros_PID(void);
 void Ejecutar_seguidor_linea(void);
-void Parametros_consola(void);
 boolean Comando_valido(char a);
 void Control_Bluethoot(char Comando);
 void Contro_tableta(char comando);
+long Leer_sensor(void);
 
 #endif

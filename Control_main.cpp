@@ -1,13 +1,10 @@
 #include <OpenLamborghino.h>
+#include <EEPROM.h>
 #include <LEANTEC_ControlMotor.h>
 #include "Control_main.h"
+#include "Comunicacion.h"
 #include "Sistema_luces.h"
 
-
-
-//Segidor linea
-#define BOTON      12
-#define BUZZER     10
 
 
 //Control PID
@@ -17,57 +14,49 @@ int base = 40;
 float Kprop = 1.1;
 float Kderiv = 0.9;
 float Kinte = 0.1;
-OpenLamborghino Segidor_DID(BOTON, BUZZER);
-
-ControlMotor Control_DID(13,14,11,12,9,10); // MotorDer1,MotorDer2,MotorIzq1,MotorIzq2,PWM_Derecho,PWM_Izquierdo
+OpenLamborghino Segidor_DID(BOTON_PIN, BUZZER_PIN);
+                            //14
+ControlMotor Control_DID(13,5,11,12,9,10); // MotorDer1,MotorDer2,MotorIzq1,MotorIzq2,PWM_Derecho,PWM_Izquierdo
                                             // IN01     ,IN02     ,IN11     ,IN12     ,PWM00      ,PWM10
 
 
-void Setup_Seguidor_linea(char Modo)
+void Setup_Seguidor_linea(void)
 {
-  if(Modo==CALIBRA)
-  {
     //Configurar Sensores
-    Segidor_DID.WaitBoton();
+    //Segidor_DID.WaitBoton();
+    Serial.println("Inicio_Calibracion_Linea");
     Segidor_DID.calibracion();
-    Segidor_DID.WaitBoton();
+    //Segidor_DID.WaitBoton();
     delay(1000);
-  }
 }
 
-void Mod_Parametros_PID(void)
+long Leer_sensor(void)
 {
-  Parametros_consola();
-  int pos =  Segidor_DID.LineaNegra();
+  return Segidor_DID.LineaNegra();
+}
+
+boolean Mod_Parametros_PID(void)
+{
+  int salida;
+  
+  Parametros_consola(&base,&Kprop,&Kderiv,&Kinte,&setpoint,&salida);
+  long pos =  Segidor_DID.LineaNegra();
   Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
   int Power = Segidor_DID.PID(pos, setpoint, gyroSpeed);
   Control_DID.Segidor_linea(base - Power, base + Power );
+  if(salida==1)
+    return false;
+  return true;
 }
 
 void Ejecutar_seguidor_linea(void)
 {
-  int pos =  Segidor_DID.LineaNegra();
+  long pos =  Segidor_DID.LineaNegra();
   int Power = Segidor_DID.PID(pos, setpoint, gyroSpeed);
   Control_DID.Segidor_linea(base - Power, base + Power );
 }
 
-void Parametros_consola(void) 
-{
 
-  if (Serial.available() > 0) {
-
-    tone(BUZZER, 1300, 100);
-    base = Serial.parseInt();
-    Kprop = Serial.parseInt() / 10.0;
-    Kderiv = Serial.parseInt() / 10.0;
-    Kinte = Serial.parseInt() / 10.0;
-    setpoint = Serial.parseInt();
-
-    if (Serial.readString() == ('\n')) {
-      Serial.flush();
-    }
-  }
-}
 
 void Control_Bluethoot(char Comando)
 {
@@ -101,7 +90,19 @@ void Control_Bluethoot(char Comando)
     break;
     case 'F':
       Control_luces(OFF_LAMP);
-    break;  
+    break; 
+     
+    case 'G': //activo modificacion de parametros
+      EEPROM.write(FLAG_PID_ADD, FLAG_PID_RESET);
+    break; 
+    case 'S': //activo rutina segidor
+      EEPROM.write(FLAG_RS_ADD, FLAG_RS_OK);
+    break; 
+    case 'T': //desactivo rutina segidor
+      EEPROM.write(FLAG_RS_ADD, FLAG_RS_RESET);
+    break; 
+     
+    
 
    }
  }
