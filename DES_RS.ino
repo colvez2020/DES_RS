@@ -1,5 +1,7 @@
 #include <EEPROM.h>
+#include "QTRSensors.h"
 #include "Control_main.h"
+
 #include "Sistema_luces.h"
 #include "Sistema_Usonic.h"
 #include "Comunicacion.h"
@@ -35,12 +37,24 @@ void setup()
   #endif
 
   
-  //if(EEPROM.read(FLAG_OPTIC_ADD)!=FLAG_OPTIC_OK)
+  if(EEPROM.read(FLAG_OPTIC_ADD)!=FLAG_OPTIC_OK)
   {
-    Setup_Seguidor_linea();
-  //  EEPROM.write(FLAG_OPTIC_ADD, FLAG_OPTIC_OK);
+    do
+    {
+      Setup_Seguidor_linea(0);
+      Read_serial_Tableta(&option_Tableta);
+      if(option_Tableta=='S')
+      {
+        EEPROM.write(FLAG_OPTIC_ADD, FLAG_OPTIC_OK);
+        break;
+      }
+    }while(1);
   }
-  
+  else
+  {
+    Setup_Seguidor_linea(6);
+  }
+    
   //Setup_luces();
   //Setup_Usonic();  
   lastPingMillis = millis();                // Punto de partida del programa

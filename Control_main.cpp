@@ -20,12 +20,12 @@ ControlMotor Control_DID(13,5,11,12,9,10); // MotorDer1,MotorDer2,MotorIzq1,Moto
                                             // IN01     ,IN02     ,IN11     ,IN12     ,PWM00      ,PWM10
 
 
-void Setup_Seguidor_linea(void)
+void Setup_Seguidor_linea(uint8_t modo)
 {
     //Configurar Sensores
     //Segidor_DID.WaitBoton();
     Serial.println("Inicio_Calibracion_Linea");
-    Segidor_DID.calibracion();
+    Segidor_DID.calibracion(modo);
     //Segidor_DID.WaitBoton();
     delay(1000);
 }

@@ -3,11 +3,12 @@
 
 //Segidor linea
 #define FLAG_OPTIC_ADD     1
-#define FLAG_OPTIC_OK     30
 #define FLAG_PID_ADD       4
+#define FLAG_RS_ADD       16
+
+#define FLAG_OPTIC_OK     30
 #define FLAG_PID_OK       31
 #define FLAG_PID_RESET    32
-#define FLAG_RS_ADD       16
 #define FLAG_RS_OK        33
 #define FLAG_RS_RESET     34
 
@@ -17,7 +18,7 @@
 #define BOTON_PIN         12
 #define BUZZER_PIN        10
 
-void Setup_Seguidor_linea(void);
+void Setup_Seguidor_linea(uint8_t modo);
 boolean Mod_Parametros_PID(void);
 void Ejecutar_seguidor_linea(void);
 boolean Comando_valido(char a);
