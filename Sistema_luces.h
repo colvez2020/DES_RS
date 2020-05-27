@@ -7,7 +7,8 @@
 
 void Setup_luces(void);
 void Control_luces(char Comando);
-void Control_led(void);
+void Control_led(char Accion);
+void Alternar_led(void);
 
 
 

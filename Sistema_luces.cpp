@@ -29,7 +29,7 @@ void Control_luces(char Acccion)
    }
 }
 
-void Control_led(void)
+void Alternar_led(void)
 {
   // Serial.println("--- led started ---");
   if(Alterna_flag==true)
@@ -42,4 +42,18 @@ void Control_led(void)
     digitalWrite(LedPin, LOW);    // HIGH pulse for at least 10µs
     Alterna_flag=true;
   }
+}
+
+
+void Control_led(char Accion)
+{
+  switch(Accion) //donde opción es la variable a comparar
+  {
+    case OFF_LAMP:
+    digitalWrite(LedPin,LOW);
+    break;
+    case ON_LAMP:
+    digitalWrite(LedPin,HIGH);
+    break;  
+   }
 }

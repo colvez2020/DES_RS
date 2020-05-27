@@ -9,7 +9,7 @@
 //Valores por defecto.
 int Velocidad_base= 120; //Velovidad en linea recta
 int setpoint = 0;    //Sobre la linea
-int gyroSpeed = 250; //Accion de control maxima
+int gyroSpeed = Velocidad_base-255; //Accion de control maxima
 int Estado_config=0;
 
 float Kprop = 1.1;
@@ -30,8 +30,11 @@ void Setup_Seguidor_linea(uint8_t modo)
 
     if(modo==CALIBRA)
     {
-      Write_serial_bluethoot_stream("Inicio_Calibracion_Linea");
+      //Write_serial_bluethoot_stream("Inicio_Calibracion_Linea");
       Segidor_DID.calibracion();
+      Write_serial_bluethoot_stream("Leendo EEPROM");
+      Segidor_DID.Getcalibracion();
+
       //Actualiza la eeprom del PID con los valores x defecto
       //Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
     }
@@ -56,11 +59,13 @@ boolean Sintonizar_PID(void)
   Parametros_consola_blue(&Velocidad_base,&Kprop,&Kderiv,&Kinte,&Estado_config);
   if(Estado_config==1)
   {
+    //Configuro valores por defecto.
     Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
     Estado_config=2;
   }
   if(Estado_config==3)
   {
+    //Actualizo datos, si es necesario.
     Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
     Setparametros_VB(Velocidad_base);
   }
@@ -68,6 +73,7 @@ boolean Sintonizar_PID(void)
   int Power = Segidor_DID.PID(pos, setpoint, gyroSpeed);
   Control_DID.Segidor_linea(Velocidad_base - Power, Velocidad_base + Power );
   
+  //Salgo del sintonizador.
   if(Estado_config==4)
     return false;
   return true;
@@ -127,8 +133,7 @@ void Control_Bluethoot(char Comando)
     break;
     case 'F':
       Control_luces(OFF_LAMP);
-    break; 
-     
+    break;      
     case 'G': //activo modificacion de parametros
       EEPROM.write(FLAG_PID_ADD, FLAG_PID_RESET);
     break; 
@@ -138,9 +143,6 @@ void Control_Bluethoot(char Comando)
     case 'T': //desactivo rutina segidor
       EEPROM.write(FLAG_RS_ADD, FLAG_RS_RESET);
     break; 
-     
-    
-
    }
  }
 

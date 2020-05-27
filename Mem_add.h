@@ -1,5 +1,5 @@
-#ifndef Men_add_h
-#define Men_add_h
+#ifndef Mem_add_h
+#define Mem_add_h
 
 
 #define FLAG_OPTIC_ADD    0
@@ -13,6 +13,7 @@
 #define KPID_ADD          CALMIN_RS_ADD+sizeof(uint16_t)*8
 #define VBGS_ADD          KPID_ADD+sizeof(float)*3
 
-
+void Write_EEPROM_size(int ADD,char* Data,int size);
+void Read_EEPROM_size(int ADD,char* Data,int size);
 
 #endif

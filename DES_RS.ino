@@ -31,30 +31,38 @@ void setup()
 {
   
   #ifdef CONFIG_AT
+  DF,MDVF,MDF
   Setup_Comunicacion(MODO_AT);
   #endif
 
   #ifndef CONFIG_AT
   Setup_Comunicacion(MODO_NORMAL);
   #endif
-
+  //Mensaje de Inicio.
+  Write_serial_bluethoot_stream_nl("INICIO");
   
   if(EEPROM.read(FLAG_OPTIC_ADD)!=FLAG_OPTIC_OK)
   {
+    Control_led(ON_LAMP);
+    Write_serial_bluethoot_stream_nl("CALIBRAR_OPTICOS?");
     do
     {
-      Setup_Seguidor_linea(CALIBRA);
       Read_serial_bluethoot(&option_bluethoot,1);
       if(option_bluethoot=='S')
       {
+        Write_serial_bluethoot_stream_nl("EJECUTANDO");
+        Setup_Seguidor_linea(CALIBRA);
+      }
+      if(option_bluethoot=='N')
+      {
         EEPROM.write(FLAG_OPTIC_ADD, FLAG_OPTIC_OK);
-        option_bluethoot='K';
         break;
       }
     }while(1);
   }
   else
   {
+    Write_serial_bluethoot_stream_nl("USANDO_VALORES_CAL");
     Setup_Seguidor_linea(NO_CALIBRA);
   }
     
@@ -68,7 +76,7 @@ void loop()
 {
   
   #ifdef CONFIG_AT
-  Write_serial_bluethoot_stream("CONFIG_AT");
+  Write_serial_bluethoot_stream_nl("CONFIG_AT");
   do{
 
     Ejecutar_modoAT();
@@ -77,16 +85,17 @@ void loop()
   #endif
   //Ciclo infinito leer_OPTIC
   #ifdef TEST_OPTIC
-  Write_serial_bluethoot_stream("TEST_OPTIC");
+  Write_serial_bluethoot_stream_nl("TEST_OPTIC");
   do{
+    Control_led(ON_LAMP);
     Leer_sensor();
-    delay(100);
+    delay(500);
   }while(1);
   #endif
 
   //Ciclo infinito probar Ultrasonicos.
   #ifdef TEST_SONIC
-  Write_serial_bluethoot_stream("TEST_SONIC");
+  Write_serial_bluethoot_stream_nl("TEST_SONIC");
   do{
     Read_Usonic(USONIC_TEST);
   }while(1);
@@ -95,7 +104,7 @@ void loop()
   //Ciclo infinito Calibrar PID en caliente
   if(EEPROM.read(FLAG_PID_ADD)==FLAG_PID_RESET)
   {
-    Write_serial_bluethoot_stream("CAL_PID");
+    Write_serial_bluethoot_stream_nl("CAL_PID");
     do{}while(Sintonizar_PID());
     EEPROM.write(FLAG_PID_ADD, FLAG_PID_OK);
   }
@@ -104,16 +113,12 @@ void loop()
   //No se toma en cuenta los sensores sonicos.
   if(EEPROM.read(FLAG_RS_ADD)==FLAG_RS_OK)
   {
-    Write_serial_bluethoot_stream("INICIA RUM RS");
+    Write_serial_bluethoot_stream_nl("INICIA RUM RS");
     do{
       Ejecutar_seguidor_linea();
       Read_serial_bluethoot(&option_bluethoot,0);
       Control_Bluethoot(option_bluethoot);
-      if (millis() - lastPingled >= LedDelay)
-      {
-        Control_led();
-        lastPingled = millis();
-      }
+      
     }while(EEPROM.read(FLAG_RS_ADD)!=FLAG_RS_RESET);
   }
 
@@ -135,7 +140,7 @@ void loop()
   //Manejo de luces
   if (millis() - lastPingled >= LedDelay)
   {
-    Control_led();
+    Alternar_led();
     lastPingled = millis();
   }
 

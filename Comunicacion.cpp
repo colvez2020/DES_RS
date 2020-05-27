@@ -5,7 +5,8 @@
 #include "Control_Main.h"
 
 //18
-SoftwareSerial ComandoSerial(17,4); // RX, TX
+//SoftwareSerial ComandoSerial(17,18); // RX, TX
+HardwareSerial & ComandoSerial = Serial1;
 
 void Setup_Comunicacion(char MODO)
 {
@@ -50,10 +51,6 @@ void Parametros_consola_blue(int* base,float* Kprop,float* Kderiv,float* Kinte,i
 
 boolean Read_serial_bluethoot(char* DATA,char MODO)
 {
-  if(MODO==1)
-  {
-     while(!ComandoSerial.available() ){}
-  }
   if (ComandoSerial.available()>0)
   {
     *DATA= ComandoSerial.read();
@@ -67,7 +64,31 @@ void Write_serial_bluethoot(char DATA)
   ComandoSerial.print(DATA);
 }
 
+void Write_serial_bluethoot_stream_nl(String DATA)
+{
+  ComandoSerial.print(DATA);
+  ComandoSerial.println();
+}
+
 void Write_serial_bluethoot_stream(String DATA)
+{
+  ComandoSerial.print(DATA);
+}
+
+
+void Write_serial_bluethoot_uint16(uint16_t DATA)
+{
+  ComandoSerial.print(DATA);
+ // ComandoSerial.println();
+}
+
+void Write_serial_bluethoot_double(double DATA)
+{
+  ComandoSerial.print(DATA);
+ // ComandoSerial.println();
+}
+
+void Write_serial_bluethoot_long(long DATA)
 {
   ComandoSerial.print(DATA);
 }

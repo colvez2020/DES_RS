@@ -5,9 +5,9 @@
 #include "Comunicacion.h"
 
 
- # define NUM_SENSORS 6 // number of sensors used
+ # define NUM_SENSORS 7 // number of sensors used
  # define NUM_SAMPLES_PER_SENSOR 4 // average 4 analog samples per sensor reading
- # define EMITTER_PIN 2 // emitter is controlled by digital
+ # define EMITTER_PIN 20 // emitter is controlled by digital
 
 
  # define Drueda 25
@@ -124,7 +124,7 @@ OpenLamborghino::OpenLamborghino(int PINBUZZER) {
 //	pinMode(HDE, INPUT);
 	pinMode(PINBUZZER, OUTPUT);
 	qtra.setTypeAnalog();
-    qtra.setSensorPins((const uint8_t[]){A0, A1, A2, A3, A4, A5}, NUM_SENSORS);
+    qtra.setSensorPins((const uint8_t[]){A0, A1, A2, A3, A4, A5, A6}, NUM_SENSORS);
     qtra.setEmitterPin(EMITTER_PIN);
     qtra.setSamplesPerSensor(NUM_SAMPLES_PER_SENSOR);
 
@@ -160,11 +160,11 @@ void OpenLamborghino::calibracion() {
 		qtra.calibrate(); // reads all sensors 10 times at 2.5 ms per six sensors (i.e. ~25 ms per call)
 	}
 
-	Serial.begin(9600);
+//	Serial.begin(9600);
 	for (int i = 0; i < NUM_SENSORS; i++)
 	 {
 		EEPROM.put(CALMIN_RS_ADD+sizeof(uint16_t)*i, qtra.calibrationOn.minimum[i]);
-		Write_serial_bluethoot(qtra.calibrationOn.minimum[i]);
+		Write_serial_bluethoot_uint16(qtra.calibrationOn.minimum[i]);
 		Write_serial_bluethoot(' ');
 	}
 	Write_serial_bluethoot_nl();
@@ -172,7 +172,7 @@ void OpenLamborghino::calibracion() {
 	for (int i = 0; i < NUM_SENSORS; i++) 
 	{
 		EEPROM.put(CALMAX_RS_ADD+sizeof(uint16_t)*i, qtra.calibrationOn.maximum[i]);
-		Write_serial_bluethoot(qtra.calibrationOn.maximum[i]);
+		Write_serial_bluethoot_uint16(qtra.calibrationOn.maximum[i]);
 		Write_serial_bluethoot(' ');
 	}
 	Write_serial_bluethoot_nl();
@@ -195,14 +195,21 @@ void OpenLamborghino::Getcalibracion()
 	Serial.begin(9600);
 	for (int i = 0; i < NUM_SENSORS; i++) {
 		EEPROM.get(CALMIN_RS_ADD+sizeof(uint16_t)*i,qtra.calibrationOn.minimum[i]);
-		Write_serial_bluethoot(qtra.calibrationOn.minimum[i]);
+		//Read_EEPROM_size(     CALMIN_RS_ADD+sizeof(uint16_t)*i,
+		//				 (char*)&qtra.calibrationOn.minimum[i],
+		 //				 					  sizeof(uint16_t));
+		Write_serial_bluethoot_uint16(qtra.calibrationOn.minimum[i]);
 		Write_serial_bluethoot(' ');
 	}
 	Write_serial_bluethoot_nl();
 
 	for (int i = 0; i < NUM_SENSORS; i++) {
 		EEPROM.get(CALMAX_RS_ADD+sizeof(uint16_t)*i,qtra.calibrationOn.maximum[i]);
-		Write_serial_bluethoot(qtra.calibrationOn.maximum[i]);
+		//Read_EEPROM_size(     CALMAX_RS_ADD+sizeof(uint16_t)*i,
+		//				 (char*)&qtra.calibrationOn.maximum[i],
+		 //				 					  sizeof(uint16_t));
+
+		Write_serial_bluethoot_uint16(qtra.calibrationOn.maximum[i]);
 		Write_serial_bluethoot(' ');
 	}
 	Write_serial_bluethoot_nl();
@@ -219,18 +226,56 @@ void OpenLamborghino::Getcalibracion()
 
 long OpenLamborghino::LineaNegra() {
 	long respuesta;
+	double Sensores_Normalizado[NUM_SENSORS];
+	double Polinomio=0;
 	uint16_t posicion = qtra.readLineBlack(sensorValues);
+
 	for (uint8_t i = 0; i < NUM_SENSORS; i++)
   	{
-    	Serial.print(sensorValues[i]);
-    	Serial.print(" ");
+    	//Write_serial_bluethoot_uint16(sensorValues[i]);
+    	//Write_serial_bluethoot_stream(" ");
+    	if(sensorValues[i]>850) // Hay cienta negra
+    	{  
+    		Sensores_Normalizado[i]=sensorValues[i]/1000.0;
+    	}
+    	else
+    	{
+    		Sensores_Normalizado[i]=0;
+    	}
+    }
+
+    for (uint8_t i = 0; i < NUM_SENSORS; i++)
+  	{
+
+		Write_serial_bluethoot_double(Sensores_Normalizado[i]);
+		Write_serial_bluethoot_stream("   ");
+		if(Sensores_Normalizado[i]!=0)
+			Polinomio=(i+1)*1000*Sensores_Normalizado[i];
+		if(Sensores_Normalizado[i+1]!=0)
+		{
+			Polinomio=(Polinomio+Sensores_Normalizado[i+1]*(i+2)*1000)/2;
+		}	
+		// if(i!=0 &&)
+		// {
+
+		// 	Polinomio=(Sensores_Normalizado[i-1]*((i)*1000)+Sensores_Normalizado[i]*((i+1)*1000))/2;	
+		// }
+		// else
+		// {
+		// 	Polinomio=Sensores_Normalizado[i]*((i+1)*1000);
+		// }
   	}
-  	Serial.print("POS:");
-  	Serial.print(posicion);
-  	Serial.print(" ");
-	respuesta = map(posicion, 0, 5000, -255, 255);
-	Serial.print("RP:");
-	Serial.println(respuesta);
+ 	Write_serial_bluethoot_stream("POS: ");
+   	Write_serial_bluethoot_double(Polinomio);
+ //  	Write_serial_bluethoot_stream(" ");
+	// respuesta = map(posicion, 1900, 3700, -255, 255);
+	// Write_serial_bluethoot_stream("RP:");
+	// Write_serial_bluethoot_long(respuesta);
+
+	Write_serial_bluethoot_nl();
+
+	//1   2   3   4  5  6  7
+
 	return respuesta;
 }
 

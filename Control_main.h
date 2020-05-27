@@ -13,7 +13,6 @@
 
 #define CALIBRA           60
 #define NO_CALIBRA        61
-#define BOTON_PIN         12
 #define BUZZER_PIN        10
 
 void Setup_Seguidor_linea(uint8_t modo);

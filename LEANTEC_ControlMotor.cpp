@@ -52,6 +52,9 @@ void ControlMotor::Segidor_linea(int left, int righ)
     MOT_IZQ_DETRAS;
     left *= -1;
   }
+
+  if(left>255)
+    left=255;
   analogWrite(pwmI, left);
 
   if (righ >= 0) {
@@ -61,6 +64,8 @@ void ControlMotor::Segidor_linea(int left, int righ)
     MOT_DER_DETRAS;
     righ *= -1;
   }
+  if(righ>255)
+    righ=255;
   analogWrite(pwmD, righ);
 
 
