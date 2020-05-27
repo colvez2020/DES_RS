@@ -6,15 +6,17 @@
 #include "Comunicacion.h"
 #include "Sistema_luces.h"
 
+//Valores por defecto.
+int Velocidad_base= 120; //Velovidad en linea recta
+int setpoint = 0;    //Sobre la linea
+int gyroSpeed = 250; //Accion de control maxima
+int Estado_config=0;
 
-
-//Control PID
-int setpoint = 0;
-int gyroSpeed = 80;
-int base = 40;
 float Kprop = 1.1;
-float Kderiv = 0.9;
+float Kderiv = 0.9; 
 float Kinte = 0.1;
+
+
 OpenLamborghino Segidor_DID(BUZZER_PIN);
                             //14
 ControlMotor Control_DID(13,5,11,12,9,10); // MotorDer1,MotorDer2,MotorIzq1,MotorIzq2,PWM_Derecho,PWM_Izquierdo
@@ -25,16 +27,18 @@ void Setup_Seguidor_linea(uint8_t modo)
 {
     //Configurar Sensores
     //Segidor_DID.WaitBoton();
+
     if(modo==CALIBRA)
     {
       Write_serial_bluethoot_stream("Inicio_Calibracion_Linea");
       Segidor_DID.calibracion();
-      
+      //Actualiza la eeprom del PID con los valores x defecto
+      //Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
     }
     else
     {
       Segidor_DID.Getcalibracion();
-
+      Getparametros_VB(&Velocidad_base);
     }
     //Segidor_DID.WaitBoton();
     delay(1000);
@@ -45,25 +49,48 @@ long Leer_sensor(void)
   return Segidor_DID.LineaNegra();
 }
 
-boolean Mod_Parametros_PID(void)
+boolean Sintonizar_PID(void)
 {
-  int salida;
-  
-  Parametros_consola_blue(&base,&Kprop,&Kderiv,&Kinte,&setpoint,&salida);
+
+  //Para si hay algo x serial.
+  Parametros_consola_blue(&Velocidad_base,&Kprop,&Kderiv,&Kinte,&Estado_config);
+  if(Estado_config==1)
+  {
+    Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
+    Estado_config=2;
+  }
+  if(Estado_config==3)
+  {
+    Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
+    Setparametros_VB(Velocidad_base);
+  }
   long pos =  Segidor_DID.LineaNegra();
-  Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
   int Power = Segidor_DID.PID(pos, setpoint, gyroSpeed);
-  Control_DID.Segidor_linea(base - Power, base + Power );
-  if(salida==1)
+  Control_DID.Segidor_linea(Velocidad_base - Power, Velocidad_base + Power );
+  
+  if(Estado_config==4)
     return false;
   return true;
+}
+
+
+void Getparametros_VB(int* VB )
+{
+  EEPROM.get(VBGS_ADD,*VB);
+  //EEPROM.get(VBGS_ADD+sizeof(int),*GS);
+}
+
+void Setparametros_VB(int VB )
+{
+  EEPROM.put(VBGS_ADD,VB);
+  //EEPROM.put(VBGS_ADD+sizeof(int),GS);
 }
 
 void Ejecutar_seguidor_linea(void)
 {
   long pos =  Segidor_DID.LineaNegra();
   int Power = Segidor_DID.PID(pos, setpoint, gyroSpeed);
-  Control_DID.Segidor_linea(base - Power, base + Power );
+  Control_DID.Segidor_linea(Velocidad_base - Power, Velocidad_base + Power );
 }
 
 

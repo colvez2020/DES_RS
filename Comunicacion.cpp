@@ -26,7 +26,7 @@ void Setup_Comunicacion(char MODO)
   
 }
 
-void Parametros_consola_blue(int* base,float* Kprop,float* Kderiv,float* Kinte, int* setpoint,int*salida) 
+void Parametros_consola_blue(int* base,float* Kprop,float* Kderiv,float* Kinte,int*orden) 
 {
 
   if (ComandoSerial.available() > 0) 
@@ -34,11 +34,11 @@ void Parametros_consola_blue(int* base,float* Kprop,float* Kderiv,float* Kinte, 
 
     tone(BUZZER_PIN, 1300, 100);
     *base = ComandoSerial.parseInt();
-    *Kprop = ComandoSerial.parseInt() / 10.0;
-    *Kderiv = ComandoSerial.parseInt() / 10.0;
-    *Kinte = ComandoSerial.parseInt() / 10.0;
-    *setpoint = ComandoSerial.parseInt();
-    *salida= ComandoSerial.parseInt();
+    *Kprop = ComandoSerial.parseFloat();
+    *Kderiv = ComandoSerial.parseFloat();
+    *Kinte = ComandoSerial.parseFloat();
+    //*setpoint = ComandoSerial.parseInt();
+    *orden= ComandoSerial.parseInt();
     
     if (ComandoSerial.readString() == ("\n")) 
     {

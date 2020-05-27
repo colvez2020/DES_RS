@@ -19,5 +19,5 @@ void Write_serial_bluethoot_nl(void);
 void Ejecutar_modoAT(void);
 
 boolean Read_serial_Tableta(char* DATA);
-void Parametros_consola_blue(int* base,float* Kprop,float* Kderiv,float* Kinte, int* setpoint,int*salida);
+void Parametros_consola_blue(int* base,float* Kprop,float* Kderiv,float* Kinte,int*orden);
 #endif

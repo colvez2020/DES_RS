@@ -92,11 +92,11 @@ void loop()
   }while(1);
   #endif
   
-  //Ciclo infinito Calibrar PID
+  //Ciclo infinito Calibrar PID en caliente
   if(EEPROM.read(FLAG_PID_ADD)==FLAG_PID_RESET)
   {
     Write_serial_bluethoot_stream("CAL_PID");
-    do{}while(Mod_Parametros_PID());
+    do{}while(Sintonizar_PID());
     EEPROM.write(FLAG_PID_ADD, FLAG_PID_OK);
   }
 

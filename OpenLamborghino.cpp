@@ -15,98 +15,102 @@
  //# define HDE A6 // pin Hito Derecha
 
 
-int umbral = 650;
-int fin = 0;
+// int umbral = 650;
+// int fin = 0;
 
-int BOTON;
+//int BOTON;
 int BUZZER;
 
-long ppr = 60.0;
+// long ppr = 60.0;
 
-long PasosIz = 0;
-long PasosDe = 0;
+// long PasosIz = 0;
+// long PasosDe = 0;
 
-long lPasosIz = 0;
-long lPasosDe = 0;
+// long lPasosIz = 0;
+// long lPasosDe = 0;
 
-long n = 0;
-long m = 0;
+// long n = 0;
+// long m = 0;
 
-long piz = 0;
-long pde = 0;
+// long piz = 0;
+// long pde = 0;
 
-long timeNow = 0;
-long timeBefore = 0;
-long sampletime = 15000; //microsegundos
+// long timeNow = 0;
+// long timeBefore = 0;
+// long sampletime = 15000; //microsegundos
 
-long StimeNow = 0;
-long StimeBefore = 0;
-long Ssampletime = 100000; //microsegundos
+// long StimeNow = 0;
+// long StimeBefore = 0;
+// long Ssampletime = 100000; //microsegundos
 
-long FBtimeNow = 0;
-long FBtimeBefore = 0;
-long FBsampletime = 15000; //microsegundos
+// long FBtimeNow = 0;
+// long FBtimeBefore = 0;
+// long FBsampletime = 15000; //microsegundos
 
 
-float velrealiz = 0; //  velrealiz = (d2-d1)/(timeNow-timeBefore)
-float velrealde = 0; //  velrealiz = (d2-d1)/(timeNow-timeBefore)
-float velprom = 0;
+// float velrealiz = 0; //  velrealiz = (d2-d1)/(timeNow-timeBefore)
+// float velrealde = 0; //  velrealiz = (d2-d1)/(timeNow-timeBefore)
+// float velprom = 0;
 
-int setv = 100;
-int PowIz = 0;
-int PowDe = 0;
-int Pow = 0;
+// int setv = 100;
+// int PowIz = 0;
+// int PowDe = 0;
+// int Pow = 0;
 
 //--------------------PIDLambo--------------------------------------------
 double position;
 int derivative = 0; // derivada
 int proportional = 0; // proporcional
+int integral =0;
 int power_difference = 0; // velocidad diferencial
 int last_proportional;
-int RANGEBRAKE = 2500;
+//int RANGEBRAKE = 2500;
 
-int error1 = 0;
-int error2 = 0;
-int error3 = 0;
-int error4 = 0;
-int error5 = 0;
-int error6 = 0;
+// int error1 = 0;
+// int error2 = 0;
+// int error3 = 0;
+// int error4 = 0;
+// int error5 = 0;
+// int error6 = 0;
+
+
+//Control PID
 
 float KP;
 float KD;
 float KI;
 
-//--------------------Hitos--------------------------
+// //--------------------Hitos--------------------------
 
-int contHito = 0;
-int geo = 0;
-int geo1 = 0;
-int geo2 = 0;
-int geo3 = 0;
-int geo4 = 0;
-int geo5 = 0;
+// int contHito = 0;
+// int geo = 0;
+// int geo1 = 0;
+// int geo2 = 0;
+// int geo3 = 0;
+// int geo4 = 0;
+// int geo5 = 0;
 
-int Hiz = 0;
-int Hde = 0;
+// int Hiz = 0;
+// int Hde = 0;
 
-//---------------mapa----------------
+// //---------------mapa----------------
 
-int x = 0;
+// int x = 0;
 
-int program = 1;
+// int program = 1;
 
-//Variables directas (obtenidas)
-int mapade[50]; //pasos encoder
-int mapaiz[50]; //pasos encoder
-int mapa[50];
-int rmapa[50];
-int velocidades[50];
-int mapcontador = 0;
+// //Variables directas (obtenidas)
+// int mapade[50]; //pasos encoder
+// int mapaiz[50]; //pasos encoder
+// int mapa[50];
+// int rmapa[50];
+// int velocidades[50];
+// int mapcontador = 0;
 
-//----------------- Velocidades
+// //----------------- Velocidades
 
-int vrecta = 1000;
-int vcurva = 500;
+// int vrecta = 1000;
+// int vcurva = 500;
 
 QTRSensors qtra;
 
@@ -124,25 +128,27 @@ OpenLamborghino::OpenLamborghino(int PINBUZZER) {
     qtra.setEmitterPin(EMITTER_PIN);
     qtra.setSamplesPerSensor(NUM_SAMPLES_PER_SENSOR);
 
+
 }
 
-void OpenLamborghino::WaitBoton() {   // Entra en un bucle infinito de espera.
-	while (!digitalRead(BOTON));  // Se sale del bucle cuando se aprieta el botón
-	tone(BUZZER, 2000, 100);      // Cuando sale del bucle, suena el buzzer
-}
+// void OpenLamborghino::WaitBoton() {   // Entra en un bucle infinito de espera.
+// 	while (!digitalRead(BOTON));  // Se sale del bucle cuando se aprieta el botón
+// 	tone(BUZZER, 2000, 100);      // Cuando sale del bucle, suena el buzzer
+// }
 
 void OpenLamborghino::beep() {
 	tone(BUZZER, 2000, 100);  // Hce sonar el buzzer de Open Lamborghino por 100ms a 2000 
 }
 
-void OpenLamborghino::IfBoton() {
-	if (digitalRead(BOTON) == HIGH) 	{
-		tone(BUZZER, 1000, 50);
-		delay(200);
-		WaitBoton();
-		delay(200);
-	}
-}
+
+// void OpenLamborghino::IfBoton() {
+// 	if (digitalRead(BOTON) == HIGH) 	{
+// 		tone(BUZZER, 1000, 50);
+// 		delay(200);
+// 		WaitBoton();
+// 		delay(200);
+// 	}
+// }
 
 
 
@@ -157,7 +163,7 @@ void OpenLamborghino::calibracion() {
 	Serial.begin(9600);
 	for (int i = 0; i < NUM_SENSORS; i++)
 	 {
-		EEPROM.write(CALMIN_RS_ADD+i, qtra.calibrationOn.minimum[i]);
+		EEPROM.put(CALMIN_RS_ADD+sizeof(uint16_t)*i, qtra.calibrationOn.minimum[i]);
 		Write_serial_bluethoot(qtra.calibrationOn.minimum[i]);
 		Write_serial_bluethoot(' ');
 	}
@@ -165,7 +171,7 @@ void OpenLamborghino::calibracion() {
 
 	for (int i = 0; i < NUM_SENSORS; i++) 
 	{
-		EEPROM.write(CALMAX_RS_ADD+i, qtra.calibrationOn.maximum[i]);
+		EEPROM.put(CALMAX_RS_ADD+sizeof(uint16_t)*i, qtra.calibrationOn.maximum[i]);
 		Write_serial_bluethoot(qtra.calibrationOn.maximum[i]);
 		Write_serial_bluethoot(' ');
 	}
@@ -188,19 +194,24 @@ void OpenLamborghino::Getcalibracion()
 
 	Serial.begin(9600);
 	for (int i = 0; i < NUM_SENSORS; i++) {
-		qtra.calibrationOn.minimum[i]=EEPROM.read(CALMIN_RS_ADD+i);
-		Serial.print(qtra.calibrationOn.minimum[i]);
-		Serial.print(' ');
+		EEPROM.get(CALMIN_RS_ADD+sizeof(uint16_t)*i,qtra.calibrationOn.minimum[i]);
+		Write_serial_bluethoot(qtra.calibrationOn.minimum[i]);
+		Write_serial_bluethoot(' ');
 	}
-	Serial.println();
+	Write_serial_bluethoot_nl();
 
 	for (int i = 0; i < NUM_SENSORS; i++) {
-		qtra.calibrationOn.maximum[i]=EEPROM.read(CALMAX_RS_ADD+i);
-		Serial.print(qtra.calibrationOn.maximum[i]);
-		Serial.print(' ');
+		EEPROM.get(CALMAX_RS_ADD+sizeof(uint16_t)*i,qtra.calibrationOn.maximum[i]);
+		Write_serial_bluethoot(qtra.calibrationOn.maximum[i]);
+		Write_serial_bluethoot(' ');
 	}
-	Serial.println();
-	Serial.println();
+	Write_serial_bluethoot_nl();
+	Write_serial_bluethoot_nl();
+
+	EEPROM.get(KPID_ADD,KP);
+	EEPROM.get(KPID_ADD+sizeof(float)*1,KI);
+	EEPROM.get(KPID_ADD+sizeof(float)*2,KD);
+	
 	tone(BUZZER, 1500, 50);
 	delay(70);
 	tone(BUZZER, 1500, 50);
@@ -232,20 +243,31 @@ long OpenLamborghino::LineaBlanca() {
 void OpenLamborghino::PIDLambo(float kp, float kd, float ki) {
 
 	KP = kp;
-	KD = kd;
 	KI = ki;
+	KD = kd;
+	EEPROM.put(KPID_ADD,KP);
+	EEPROM.put(KPID_ADD+sizeof(float)*1,KI);
+	EEPROM.put(KPID_ADD+sizeof(float)*2,KD);
 }
 
+//setpoint=0; 
 long OpenLamborghino::PID(int POS, int setpoint, int lim) {
 
+	//Proporcional 
 	proportional = int(POS) - setpoint;
+	//Derivativo
 	derivative = proportional - last_proportional;
 	last_proportional = proportional;
-	int power_difference = (proportional * KP) + (derivative * KD);
+	//Integal
+	integral=integral+int(POS) - setpoint;
+
+	//Accion de contorl //Lim = sobre inmpulso maximo. 
+	int power_difference = (proportional * KP) + (derivative * KD) + (integral*KI);
 	if (power_difference > lim)
 		power_difference = lim;
 	else if (power_difference < -lim)
 		power_difference = -lim;
+	
 	return power_difference;
 }
 

@@ -17,7 +17,9 @@
 #define BUZZER_PIN        10
 
 void Setup_Seguidor_linea(uint8_t modo);
-boolean Mod_Parametros_PID(void);
+boolean Sintonizar_PID(void);
+void Getparametros_VB(int* VB );
+void Setparametros_VB(int VB );
 void Ejecutar_seguidor_linea(void);
 boolean Comando_valido(char a);
 void Control_Bluethoot(char Comando);
