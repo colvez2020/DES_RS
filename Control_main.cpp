@@ -15,7 +15,7 @@ int base = 40;
 float Kprop = 1.1;
 float Kderiv = 0.9;
 float Kinte = 0.1;
-OpenLamborghino Segidor_DID(BOTON_PIN, BUZZER_PIN);
+OpenLamborghino Segidor_DID(BUZZER_PIN);
                             //14
 ControlMotor Control_DID(13,5,11,12,9,10); // MotorDer1,MotorDer2,MotorIzq1,MotorIzq2,PWM_Derecho,PWM_Izquierdo
                                             // IN01     ,IN02     ,IN11     ,IN12     ,PWM00      ,PWM10
@@ -27,14 +27,14 @@ void Setup_Seguidor_linea(uint8_t modo)
     //Segidor_DID.WaitBoton();
     if(modo==CALIBRA)
     {
-      Serial.println("Inicio_Calibracion_Linea");
+      Write_serial_bluethoot_stream("Inicio_Calibracion_Linea");
       Segidor_DID.calibracion();
       
     }
     else
     {
       Segidor_DID.Getcalibracion();
-      
+
     }
     //Segidor_DID.WaitBoton();
     delay(1000);
@@ -49,7 +49,7 @@ boolean Mod_Parametros_PID(void)
 {
   int salida;
   
-  Parametros_consola(&base,&Kprop,&Kderiv,&Kinte,&setpoint,&salida);
+  Parametros_consola_blue(&base,&Kprop,&Kderiv,&Kinte,&setpoint,&salida);
   long pos =  Segidor_DID.LineaNegra();
   Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
   int Power = Segidor_DID.PID(pos, setpoint, gyroSpeed);

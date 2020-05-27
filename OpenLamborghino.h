@@ -5,7 +5,7 @@
 
 class OpenLamborghino {
 	public:
-	OpenLamborghino(int PINBOTON, int PINBUZZER);
+	OpenLamborghino(int PINBUZZER);
 	void WaitBoton();
 	void beep();
 	void IfBoton();

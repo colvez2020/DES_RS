@@ -1,4 +1,4 @@
-#include <EEPROM.h>
+//#include <EEPROM.h>
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include "Comunicacion.h"
@@ -26,7 +26,7 @@ void Setup_Comunicacion(char MODO)
   
 }
 
-void Parametros_consola(int* base,float* Kprop,float* Kderiv,float* Kinte, int* setpoint,int*salida) 
+void Parametros_consola_blue(int* base,float* Kprop,float* Kderiv,float* Kinte, int* setpoint,int*salida) 
 {
 
   if (ComandoSerial.available() > 0) 
@@ -48,8 +48,12 @@ void Parametros_consola(int* base,float* Kprop,float* Kderiv,float* Kinte, int* 
 }
 
 
-boolean Read_serial_bluethoot(char* DATA)
+boolean Read_serial_bluethoot(char* DATA,char MODO)
 {
+  if(MODO==1)
+  {
+     while(!ComandoSerial.available() ){}
+  }
   if (ComandoSerial.available()>0)
   {
     *DATA= ComandoSerial.read();
@@ -61,6 +65,16 @@ boolean Read_serial_bluethoot(char* DATA)
 void Write_serial_bluethoot(char DATA)
 {
   ComandoSerial.print(DATA);
+}
+
+void Write_serial_bluethoot_stream(String DATA)
+{
+  ComandoSerial.print(DATA);
+}
+
+void Write_serial_bluethoot_nl(void)
+{
+  ComandoSerial.println();
 }
 
 void Ejecutar_modoAT(void)

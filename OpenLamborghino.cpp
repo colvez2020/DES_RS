@@ -2,6 +2,7 @@
  # include "Arduino.h"
  # include "OpenLamborghino.h"
  # include "Mem_add.h"
+#include "Comunicacion.h"
 
 
  # define NUM_SENSORS 6 // number of sensors used
@@ -111,10 +112,10 @@ QTRSensors qtra;
 
 uint16_t sensorValues[NUM_SENSORS];
 
-OpenLamborghino::OpenLamborghino(int PINBOTON, int PINBUZZER) {
+OpenLamborghino::OpenLamborghino(int PINBUZZER) {
 	BUZZER = PINBUZZER;
-	BOTON = PINBOTON;
-	pinMode(PINBOTON, INPUT);
+	//BOTON = PINBOTON;
+	//pinMode(PINBOTON, INPUT);
 //	pinMode(HIZ, INPUT);
 //	pinMode(HDE, INPUT);
 	pinMode(PINBUZZER, OUTPUT);
@@ -154,20 +155,22 @@ void OpenLamborghino::calibracion() {
 	}
 
 	Serial.begin(9600);
-	for (int i = 0; i < NUM_SENSORS; i++) {
+	for (int i = 0; i < NUM_SENSORS; i++)
+	 {
 		EEPROM.write(CALMIN_RS_ADD+i, qtra.calibrationOn.minimum[i]);
-		Serial.print(qtra.calibrationOn.minimum[i]);
-		Serial.print(' ');
+		Write_serial_bluethoot(qtra.calibrationOn.minimum[i]);
+		Write_serial_bluethoot(' ');
 	}
-	Serial.println();
+	Write_serial_bluethoot_nl();
 
-	for (int i = 0; i < NUM_SENSORS; i++) {
+	for (int i = 0; i < NUM_SENSORS; i++) 
+	{
 		EEPROM.write(CALMAX_RS_ADD+i, qtra.calibrationOn.maximum[i]);
-		Serial.print(qtra.calibrationOn.maximum[i]);
-		Serial.print(' ');
+		Write_serial_bluethoot(qtra.calibrationOn.maximum[i]);
+		Write_serial_bluethoot(' ');
 	}
-	Serial.println();
-	Serial.println();
+	Write_serial_bluethoot_nl();
+	Write_serial_bluethoot_nl();
 	tone(BUZZER, 1500, 50);
 	delay(70);
 	tone(BUZZER, 1500, 50);
@@ -226,6 +229,29 @@ long OpenLamborghino::LineaBlanca() {
 	return posicion;
 }
 
+void OpenLamborghino::PIDLambo(float kp, float kd, float ki) {
+
+	KP = kp;
+	KD = kd;
+	KI = ki;
+}
+
+long OpenLamborghino::PID(int POS, int setpoint, int lim) {
+
+	proportional = int(POS) - setpoint;
+	derivative = proportional - last_proportional;
+	last_proportional = proportional;
+	int power_difference = (proportional * KP) + (derivative * KD);
+	if (power_difference > lim)
+		power_difference = lim;
+	else if (power_difference < -lim)
+		power_difference = -lim;
+	return power_difference;
+}
+
+
+
+
 // void OpenLamborghino::EncoderIz() {
 // 	PasosIz++;
 // 	piz++;
@@ -278,25 +304,6 @@ long OpenLamborghino::LineaBlanca() {
 
 
 
-// void OpenLamborghino::PIDLambo(float kp, float kd, float ki) {
-
-// 	KP = kp;
-// 	KD = kd;
-// 	KI = ki;
-// }
-
-// long OpenLamborghino::PID(int POS, int setpoint, int lim) {
-
-// 	proportional = int(POS) - setpoint;
-// 	derivative = proportional - last_proportional;
-// 	last_proportional = proportional;
-// 	int power_difference = (proportional * KP) + (derivative * KD);
-// 	if (power_difference > lim)
-// 		power_difference = lim;
-// 	else if (power_difference < -lim)
-// 		power_difference = -lim;
-// 	return power_difference;
-// }
 
 
 
