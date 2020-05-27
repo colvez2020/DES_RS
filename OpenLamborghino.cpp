@@ -1,5 +1,7 @@
+#include <EEPROM.h>
  # include "Arduino.h"
  # include "OpenLamborghino.h"
+ # include "Mem_add.h"
 
 
  # define NUM_SENSORS 6 // number of sensors used
@@ -8,8 +10,8 @@
 
 
  # define Drueda 25
- # define HIZ A7 // pin Hito Izquierda
- # define HDE A6 // pin Hito Derecha
+ //# define HIZ A7 // pin Hito Izquierda
+ //# define HDE A6 // pin Hito Derecha
 
 
 int umbral = 650;
@@ -113,8 +115,8 @@ OpenLamborghino::OpenLamborghino(int PINBOTON, int PINBUZZER) {
 	BUZZER = PINBUZZER;
 	BOTON = PINBOTON;
 	pinMode(PINBOTON, INPUT);
-	pinMode(HIZ, INPUT);
-	pinMode(HDE, INPUT);
+//	pinMode(HIZ, INPUT);
+//	pinMode(HDE, INPUT);
 	pinMode(PINBUZZER, OUTPUT);
 	qtra.setTypeAnalog();
     qtra.setSensorPins((const uint8_t[]){A0, A1, A2, A3, A4, A5}, NUM_SENSORS);
@@ -143,22 +145,54 @@ void OpenLamborghino::IfBoton() {
 
 
 
-void OpenLamborghino::calibracion(uint8_t modo) {
+void OpenLamborghino::calibracion() {
 
 	tone(BUZZER, 1000, 100);
 	for (int i = 0; i < 400; i++) // make the calibration take about 10 seconds
 	{
-		qtra.calibrate( modo); // reads all sensors 10 times at 2.5 ms per six sensors (i.e. ~25 ms per call)
+		qtra.calibrate(); // reads all sensors 10 times at 2.5 ms per six sensors (i.e. ~25 ms per call)
 	}
 
 	Serial.begin(9600);
 	for (int i = 0; i < NUM_SENSORS; i++) {
+		EEPROM.write(CALMIN_RS_ADD+i, qtra.calibrationOn.minimum[i]);
 		Serial.print(qtra.calibrationOn.minimum[i]);
 		Serial.print(' ');
 	}
 	Serial.println();
 
 	for (int i = 0; i < NUM_SENSORS; i++) {
+		EEPROM.write(CALMAX_RS_ADD+i, qtra.calibrationOn.maximum[i]);
+		Serial.print(qtra.calibrationOn.maximum[i]);
+		Serial.print(' ');
+	}
+	Serial.println();
+	Serial.println();
+	tone(BUZZER, 1500, 50);
+	delay(70);
+	tone(BUZZER, 1500, 50);
+}
+
+
+void OpenLamborghino::Getcalibracion() 
+{
+
+	tone(BUZZER, 1000, 100);
+	for (int i = 0; i < 1; i++) // make the calibration take about 10 seconds
+	{
+		qtra.calibrate(); // reads all sensors 10 times at 2.5 ms per six sensors (i.e. ~25 ms per call)
+	}
+
+	Serial.begin(9600);
+	for (int i = 0; i < NUM_SENSORS; i++) {
+		qtra.calibrationOn.minimum[i]=EEPROM.read(CALMIN_RS_ADD+i);
+		Serial.print(qtra.calibrationOn.minimum[i]);
+		Serial.print(' ');
+	}
+	Serial.println();
+
+	for (int i = 0; i < NUM_SENSORS; i++) {
+		qtra.calibrationOn.maximum[i]=EEPROM.read(CALMAX_RS_ADD+i);
 		Serial.print(qtra.calibrationOn.maximum[i]);
 		Serial.print(' ');
 	}
@@ -192,262 +226,266 @@ long OpenLamborghino::LineaBlanca() {
 	return posicion;
 }
 
-void OpenLamborghino::EncoderIz() {
-	PasosIz++;
-	piz++;
-}
+// void OpenLamborghino::EncoderIz() {
+// 	PasosIz++;
+// 	piz++;
+// }
 
-void OpenLamborghino::EncoderDe() {
-	PasosDe++;
-	pde++;
-}
+// void OpenLamborghino::EncoderDe() {
+// 	PasosDe++;
+// 	pde++;
+// }
 
-void OpenLamborghino::vel() {
+// void OpenLamborghino::vel() {
 
-	timeNow = micros();
-	if ((timeNow - timeBefore) > (sampletime)) {
-		velrealiz = ((Drueda * 3.14) / ppr) * (1000000.0 / sampletime) * (PasosIz - n);
-		velrealde = ((Drueda * 3.14) / ppr) * (1000000.0 / sampletime) * (PasosDe - m);
-		velprom = (velrealiz + velrealde) / 2;
-		timeBefore = timeNow;
-		controlador();
-		n = PasosIz;
-		m = PasosDe;
-	}
-}
+// 	timeNow = micros();
+// 	if ((timeNow - timeBefore) > (sampletime)) {
+// 		velrealiz = ((Drueda * 3.14) / ppr) * (1000000.0 / sampletime) * (PasosIz - n);
+// 		velrealde = ((Drueda * 3.14) / ppr) * (1000000.0 / sampletime) * (PasosDe - m);
+// 		velprom = (velrealiz + velrealde) / 2;
+// 		timeBefore = timeNow;
+// 		controlador();
+// 		n = PasosIz;
+// 		m = PasosDe;
+// 	}
+// }
 
-void OpenLamborghino::incomingByte(int a) {
-	velocid = a;
-}
+// void OpenLamborghino::incomingByte(int a) {
+// 	velocid = a;
+// }
 
-int OpenLamborghino::controlador() {
-	FBtimeNow = micros();
-	if ((FBtimeNow - FBtimeBefore) > (FBsampletime)) {
-		if (velocid == 0) {
-			Pow = 0;
-		}
-		if (velprom < velocid) {
-			Pow++;
-			if (pow > 255) {
-				pow = 255;
-			}
-		} else {
-			Pow--;
-			if (pow < 0) {
-				pow = 0;
-			}
-		}
-		FBtimeBefore = FBtimeNow;
-	}
-	return Pow;
-}
-
-void OpenLamborghino::comunicacion() {
-	StimeNow = micros();
-	if ((StimeNow - StimeBefore) > (Ssampletime)) {
-		Serial.println(velprom);
-		StimeBefore = StimeNow;
-	}
-}
-
-void OpenLamborghino::PIDLambo(float kp, float kd, float ki) {
-
-	KP = kp;
-	KD = kd;
-	KI = ki;
-}
-
-long OpenLamborghino::PID(int POS, int setpoint, int lim) {
-
-	proportional = int(POS) - setpoint;
-	derivative = proportional - last_proportional;
-	last_proportional = proportional;
-	int power_difference = (proportional * KP) + (derivative * KD);
-	if (power_difference > lim)
-		power_difference = lim;
-	else if (power_difference < -lim)
-		power_difference = -lim;
-	return power_difference;
-}
-
-void OpenLamborghino::ReadSensors() {
-	Hiz = analogRead(HIZ);
-	Hde = analogRead(HDE);
-
-	if (Hiz < umbral) {
-		Hiz = 1;
-	} else {
-		Hiz = 0;
-	}
-
-	if (Hde < umbral) {
-		Hde = 1;
-	} else {
-		Hde = 0;
-	}
-}
-
-void OpenLamborghino::detecGeo() {
-
-	ReadSensors();
-
-	if (Hiz == 0 && Hde == 0) {
-		geo = 0;
-	}
-	if (Hiz == 1 && Hde == 0) {
-		geo = 1;
-	}
-	if (Hiz == 0 && Hde == 1) {
-		geo = 2;
-	}
-	if (Hiz == 1 && Hde == 1) {
-		geo = 3;
-	}
-
-	if (geo1 != geo) {
-		if (geo == 0 && geo1 == 1 && geo2 == 0) {
-			fin++;
-
-			funcionHitoDe();
-
-		}
-
-		if (geo == 0 && geo1 == 2 && geo2 == 0) {
-
-			funcionHitoIz();
-		}
-
-		if (geo == 0 && ((geo1 == 3) || (geo2 == 3) || (geo3 == 3))) {
-
-			funcionCruce();
+// int OpenLamborghino::controlador() {
+// 	FBtimeNow = micros();
+// 	if ((FBtimeNow - FBtimeBefore) > (FBsampletime)) {
+// 		if (velocid == 0) {
+// 			Pow = 0;
+// 		}
+// 		if (velprom < velocid) {
+// 			Pow++;
+// 			if (pow > 255) {
+// 				pow = 255;
+// 			}
+// 		} else {
+// 			Pow--;
+// 			if (pow < 0) {
+// 				pow = 0;
+// 			}
+// 		}
+// 		FBtimeBefore = FBtimeNow;
+// 	}
+// 	return Pow;
+// }
 
 
-		}
-		geo5 = geo4;
-		geo4 = geo3;
-		geo3 = geo2;
-		geo2 = geo1;
-		geo1 = geo;
-	}
-}
 
-int OpenLamborghino::change() {
-	int changer = program;
-	return changer;
-}
+// void OpenLamborghino::PIDLambo(float kp, float kd, float ki) {
 
-void OpenLamborghino::velocimetro() {
-	velocid = velocidades[mapcontador];
-}
+// 	KP = kp;
+// 	KD = kd;
+// 	KI = ki;
+// }
 
+// long OpenLamborghino::PID(int POS, int setpoint, int lim) {
 
-void OpenLamborghino::funcionCruce() {
-	Serial.println("Intersection");
-}
+// 	proportional = int(POS) - setpoint;
+// 	derivative = proportional - last_proportional;
+// 	last_proportional = proportional;
+// 	int power_difference = (proportional * KP) + (derivative * KD);
+// 	if (power_difference > lim)
+// 		power_difference = lim;
+// 	else if (power_difference < -lim)
+// 		power_difference = -lim;
+// 	return power_difference;
+// }
 
 
-void OpenLamborghino::funcionHitoIz() {
-tone(BUZZER, 1500, 50);
 
-			mapaiz[mapcontador] = int(0.335 * (piz));
-			mapade[mapcontador] = int(0.335 * (pde));
-			mapa[mapcontador] = int(0.5 * (mapaiz[mapcontador] + mapade[mapcontador]));
-			rmapa[mapcontador] = abs(int(6 * (mapaiz[mapcontador] + mapade[mapcontador]) / ((mapaiz[mapcontador] - mapade[mapcontador]))));
+// void OpenLamborghino::comunicacion() {
+// 	StimeNow = micros();
+// 	if ((StimeNow - StimeBefore) > (Ssampletime)) {
+// 		Serial.println(velprom);
+// 		StimeBefore = StimeNow;
+// 	}
+// }
 
-			piz = 0;
-			pde = 0;
+// void OpenLamborghino::ReadSensors() {
+// 	Hiz = analogRead(HIZ);
+// 	Hde = analogRead(HDE);
 
-			/*
-			Serial.print(velocid);
-			Serial.print("\t");
-			Serial.print(mapaiz[mapcontador]);
-			Serial.print("\t");
-			Serial.print(mapade[mapcontador]);
-			Serial.print("\t");
-			Serial.println("Left Marker");
-			 */
-			mapcontador++;
-}
+// 	if (Hiz < umbral) {
+// 		Hiz = 1;
+// 	} else {
+// 		Hiz = 0;
+// 	}
+
+// 	if (Hde < umbral) {
+// 		Hde = 1;
+// 	} else {
+// 		Hde = 0;
+// 	}
+// }
+
+// void OpenLamborghino::detecGeo() {
+
+// 	ReadSensors();
+
+// 	if (Hiz == 0 && Hde == 0) {
+// 		geo = 0;
+// 	}
+// 	if (Hiz == 1 && Hde == 0) {
+// 		geo = 1;
+// 	}
+// 	if (Hiz == 0 && Hde == 1) {
+// 		geo = 2;
+// 	}
+// 	if (Hiz == 1 && Hde == 1) {
+// 		geo = 3;
+// 	}
+
+// 	if (geo1 != geo) {
+// 		if (geo == 0 && geo1 == 1 && geo2 == 0) {
+// 			fin++;
+
+// 			funcionHitoDe();
+
+// 		}
+
+// 		if (geo == 0 && geo1 == 2 && geo2 == 0) {
+
+// 			funcionHitoIz();
+// 		}
+
+// 		if (geo == 0 && ((geo1 == 3) || (geo2 == 3) || (geo3 == 3))) {
+
+// 			funcionCruce();
 
 
-void OpenLamborghino::funcionHitoDe() {
+// 		}
+// 		geo5 = geo4;
+// 		geo4 = geo3;
+// 		geo3 = geo2;
+// 		geo2 = geo1;
+// 		geo1 = geo;
+// 	}
+// }
 
-			tone(BUZZER, 2000, 50);
+// int OpenLamborghino::change() {
+// 	int changer = program;
+// 	return changer;
+// }
 
-			mapaiz[mapcontador] = int(0.335 * (piz));
-			mapade[mapcontador] = int(0.335 * (pde));
-			mapa[mapcontador] = int(0.5 * (mapaiz[mapcontador] + mapade[mapcontador]));
-			rmapa[mapcontador] = abs(int(6 * (mapaiz[mapcontador] + mapade[mapcontador]) / ((mapaiz[mapcontador] - mapade[mapcontador]))));
+// void OpenLamborghino::velocimetro() {
+// 	velocid = velocidades[mapcontador];
+// }
 
-			piz = 0;
-			pde = 0;
+
+// void OpenLamborghino::funcionCruce() {
+// 	Serial.println("Intersection");
+// }
+
+
+// void OpenLamborghino::funcionHitoIz() {
+// tone(BUZZER, 1500, 50);
+
+// 			mapaiz[mapcontador] = int(0.335 * (piz));
+// 			mapade[mapcontador] = int(0.335 * (pde));
+// 			mapa[mapcontador] = int(0.5 * (mapaiz[mapcontador] + mapade[mapcontador]));
+// 			rmapa[mapcontador] = abs(int(6 * (mapaiz[mapcontador] + mapade[mapcontador]) / ((mapaiz[mapcontador] - mapade[mapcontador]))));
+
+// 			piz = 0;
+// 			pde = 0;
+
 			
-			/*
-			Serial.print(velocid);
-			Serial.print("\t");
-			Serial.print(mapaiz[mapcontador]);
-			Serial.print("\t");
-			Serial.print(mapade[mapcontador]);
-			Serial.print("\t");
-			Serial.println("Right Marker");
-			 */
+// 			// Serial.print(velocid);
+// 			// Serial.print("\t");
+// 			// Serial.print(mapaiz[mapcontador]);
+// 			// Serial.print("\t");
+// 			// Serial.print(mapade[mapcontador]);
+// 			// Serial.print("\t");
+// 			// Serial.println("Left Marker");
 			 
-			mapcontador++;
+// 			mapcontador++;
+// }
+
+
+// void OpenLamborghino::funcionHitoDe() {
+
+// 			tone(BUZZER, 2000, 50);
+
+// 			mapaiz[mapcontador] = int(0.335 * (piz));
+// 			mapade[mapcontador] = int(0.335 * (pde));
+// 			mapa[mapcontador] = int(0.5 * (mapaiz[mapcontador] + mapade[mapcontador]));
+// 			rmapa[mapcontador] = abs(int(6 * (mapaiz[mapcontador] + mapade[mapcontador]) / ((mapaiz[mapcontador] - mapade[mapcontador]))));
+
+// 			piz = 0;
+// 			pde = 0;
+			
+			
+// 			// Serial.print(velocid);
+// 			// Serial.print("\t");
+// 			// Serial.print(mapaiz[mapcontador]);
+// 			// Serial.print("\t");
+// 			// Serial.print(mapade[mapcontador]);
+// 			// Serial.print("\t");
+// 			// Serial.println("Right Marker");
+			 
+			 
+// 			mapcontador++;
 
 			
-			if (fin >= 2) {
-				velocid = 0;
-				program++;
-				Serial.println(program);
-				mapcontador = 0;
-				fin = 0;
-			}
+// 			if (fin >= 2) {
+// 				velocid = 0;
+// 				program++;
+// 				Serial.println(program);
+// 				mapcontador = 0;
+// 				fin = 0;
+// 			}
 			
 			
-}
+// }
 
-void OpenLamborghino::datalogger() {
+// void OpenLamborghino::datalogger() {
 
-	Serial.print("Mapiz:   ");
-	for (int i = 0; i <= 255; i++) {
-		if (mapaiz[i] == 0) {
-			break;
-		}
-		Serial.print(mapaiz[i]);
-		Serial.print("\t");
-	}
+// 	Serial.print("Mapiz:   ");
+// 	for (int i = 0; i <= 255; i++) {
+// 		if (mapaiz[i] == 0) {
+// 			break;
+// 		}
+// 		Serial.print(mapaiz[i]);
+// 		Serial.print("\t");
+// 	}
 
-	Serial.println();
-	Serial.print("Mapde:   ");
+// 	Serial.println();
+// 	Serial.print("Mapde:   ");
 
-	for (int i = 0; i <= 255; i++) {
-		if (mapaiz[i] == 0) {
-			break;
-		}
-		Serial.print(mapade[i]);
-		Serial.print("\t");
-	}
+// 	for (int i = 0; i <= 255; i++) {
+// 		if (mapaiz[i] == 0) {
+// 			break;
+// 		}
+// 		Serial.print(mapade[i]);
+// 		Serial.print("\t");
+// 	}
 
-	Serial.println();
-	Serial.print("Mapa:   ");
+// 	Serial.println();
+// 	Serial.print("Mapa:   ");
 
-	for (int i = 0; i <= 255; i++) {
-		if (mapaiz[i] == 0) {
-			break;
-		}
-		Serial.print(mapa[i]);
-		Serial.print("\t");
-	}
+// 	for (int i = 0; i <= 255; i++) {
+// 		if (mapaiz[i] == 0) {
+// 			break;
+// 		}
+// 		Serial.print(mapa[i]);
+// 		Serial.print("\t");
+// 	}
 
-	Serial.println();
-	Serial.print("Rmapa:   ");
+// 	Serial.println();
+// 	Serial.print("Rmapa:   ");
 
-	for (int i = 0; i <= 255; i++) {
-		if (mapaiz[i] == 0) {
-			break;
-		}
-		Serial.print(rmapa[i]);
-		Serial.print("\t");
-	}
-	Serial.println("\t");
-}
+// 	for (int i = 0; i <= 255; i++) {
+// 		if (mapaiz[i] == 0) {
+// 			break;
+// 		}
+// 		Serial.print(rmapa[i]);
+// 		Serial.print("\t");
+// 	}
+// 	Serial.println("\t");
+// }

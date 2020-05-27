@@ -2,9 +2,7 @@
 #define Control_main_h
 
 //Segidor linea
-#define FLAG_OPTIC_ADD     1
-#define FLAG_PID_ADD       4
-#define FLAG_RS_ADD       16
+
 
 #define FLAG_OPTIC_OK     30
 #define FLAG_PID_OK       31

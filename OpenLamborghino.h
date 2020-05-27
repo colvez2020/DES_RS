@@ -12,7 +12,8 @@ class OpenLamborghino {
 
 	long LineaNegra();
 	long LineaBlanca();
-	void calibracion(uint8_t modo);
+	void calibracion();
+	void Getcalibracion();
 
 	void funcionCruce();
 	void funcionHitoIz();

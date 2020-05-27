@@ -29,7 +29,8 @@ void Setup_Comunicacion(char MODO)
 void Parametros_consola(int* base,float* Kprop,float* Kderiv,float* Kinte, int* setpoint,int*salida) 
 {
 
-  if (ComandoSerial.available() > 0) {
+  if (ComandoSerial.available() > 0) 
+  {
 
     tone(BUZZER_PIN, 1300, 100);
     *base = ComandoSerial.parseInt();
@@ -39,7 +40,8 @@ void Parametros_consola(int* base,float* Kprop,float* Kderiv,float* Kinte, int* 
     *setpoint = ComandoSerial.parseInt();
     *salida= ComandoSerial.parseInt();
     
-    if (ComandoSerial.readString() == ('\n')) {
+    if (ComandoSerial.readString() == ("\n")) 
+    {
       ComandoSerial.flush();
     }
   }

@@ -1,4 +1,6 @@
 #include <EEPROM.h>
+
+#include "Mem_add.h"
 #include "QTRSensors.h"
 #include "Control_main.h"
 
@@ -41,7 +43,8 @@ void setup()
   {
     do
     {
-      Setup_Seguidor_linea(0);
+      Setup_Seguidor_linea(CALIBRA);
+      while(!Serial.available() ){}
       Read_serial_Tableta(&option_Tableta);
       if(option_Tableta=='S')
       {
@@ -52,7 +55,7 @@ void setup()
   }
   else
   {
-    Setup_Seguidor_linea(6);
+    Setup_Seguidor_linea(NO_CALIBRA);
   }
     
   //Setup_luces();
@@ -117,8 +120,8 @@ void loop()
       option_bluethoot='P';
       Control_Bluethoot(option_bluethoot);
     }         
-    Write_serial_bluethoot(distancia_result);              
-    Write_serial_bluethoot(",");              
+    Write_serial_bluethoot(distancia_result);      
+    Write_serial_bluethoot(',');              
     lastPingMillis = millis();
   }
 

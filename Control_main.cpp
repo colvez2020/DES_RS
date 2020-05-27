@@ -1,6 +1,7 @@
-#include <OpenLamborghino.h>
 #include <EEPROM.h>
-#include <LEANTEC_ControlMotor.h>
+#include "Mem_add.h"
+#include "OpenLamborghino.h"
+#include "LEANTEC_ControlMotor.h"
 #include "Control_main.h"
 #include "Comunicacion.h"
 #include "Sistema_luces.h"
@@ -24,8 +25,17 @@ void Setup_Seguidor_linea(uint8_t modo)
 {
     //Configurar Sensores
     //Segidor_DID.WaitBoton();
-    Serial.println("Inicio_Calibracion_Linea");
-    Segidor_DID.calibracion(modo);
+    if(modo==CALIBRA)
+    {
+      Serial.println("Inicio_Calibracion_Linea");
+      Segidor_DID.calibracion();
+      
+    }
+    else
+    {
+      Segidor_DID.Getcalibracion();
+      
+    }
     //Segidor_DID.WaitBoton();
     delay(1000);
 }
