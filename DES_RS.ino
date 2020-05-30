@@ -12,7 +12,7 @@
 //Opciones de configuracion
 //#define CONFIG_AT
 //#define TEST_SONIC
-#define TEST_OPTIC
+//#define TEST_OPTIC
 
 //Led
 #define LedDelay 500
@@ -132,7 +132,7 @@ void loop()
       option_bluethoot='P';
       Control_Bluethoot(option_bluethoot);
     }         
-    Write_serial_bluethoot(distancia_result);      
+    Write_serial_bluethoot_float(distancia_result);      
     Write_serial_bluethoot(',');              
     lastPingMillis = millis();
   }

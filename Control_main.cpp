@@ -40,6 +40,7 @@ void Setup_Seguidor_linea(uint8_t modo)
     }
     else
     {
+      //Segidor_DID.PIDLambo(Kprop, Kderiv, Kinte);
       Segidor_DID.Getcalibracion();
       Getparametros_VB(&Velocidad_base);
     }

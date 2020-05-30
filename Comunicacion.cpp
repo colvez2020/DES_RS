@@ -88,6 +88,12 @@ void Write_serial_bluethoot_double(double DATA)
  // ComandoSerial.println();
 }
 
+void Write_serial_bluethoot_float(float DATA)
+{
+  ComandoSerial.print(DATA);
+ // ComandoSerial.println();
+}
+
 void Write_serial_bluethoot_long(long DATA)
 {
   ComandoSerial.print(DATA);

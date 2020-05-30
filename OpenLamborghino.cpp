@@ -218,7 +218,17 @@ void OpenLamborghino::Getcalibracion()
 	EEPROM.get(KPID_ADD,KP);
 	EEPROM.get(KPID_ADD+sizeof(float)*1,KI);
 	EEPROM.get(KPID_ADD+sizeof(float)*2,KD);
-	
+
+	Write_serial_bluethoot_stream_nl("CONSTANTES_PID_EEPROM");
+  
+	Write_serial_bluethoot_float(KP);
+	Write_serial_bluethoot(' ');
+	Write_serial_bluethoot_float(KI);
+	Write_serial_bluethoot(' ');
+	Write_serial_bluethoot_float(KD);
+	Write_serial_bluethoot(' ');
+
+
 	tone(BUZZER, 1500, 50);
 	delay(70);
 	tone(BUZZER, 1500, 50);
@@ -229,50 +239,65 @@ long OpenLamborghino::LineaNegra() {
 	double Sensores_Normalizado[NUM_SENSORS];
 	double Polinomio=0;
 	uint16_t posicion = qtra.readLineBlack(sensorValues);
+	int index=0;
 
-	for (uint8_t i = 0; i < NUM_SENSORS; i++)
+	for (index = 0; index < NUM_SENSORS; index++)
   	{
     	//Write_serial_bluethoot_uint16(sensorValues[i]);
     	//Write_serial_bluethoot_stream(" ");
-    	if(sensorValues[i]>850) // Hay cienta negra
+    	if(sensorValues[index]>850) // Hay cienta negra
     	{  
-    		Sensores_Normalizado[i]=sensorValues[i]/1000.0;
+    		Sensores_Normalizado[index]=sensorValues[index]/1000.0;
     	}
     	else
     	{
-    		Sensores_Normalizado[i]=0;
+    		Sensores_Normalizado[index]=0;
     	}
+    	//Write_serial_bluethoot_double(Sensores_Normalizado[index]);
+		//Write_serial_bluethoot_stream("   ");
     }
+    index=0;
 
-    for (uint8_t i = 0; i < NUM_SENSORS; i++)
-  	{
+    do
+    {
+    	if(Sensores_Normalizado[index]!=0)
+    	{
+    		if(index+1<NUM_SENSORS)
+    		{
+    			if(Sensores_Normalizado[index+1]!=0)
+    			{
+    				//Write_serial_bluethoot_stream("caso2");
+    				Polinomio=(
+    					       (Sensores_Normalizado[index]*(index+1)*1000)  +
+    						   (Sensores_Normalizado[index+1]*(index+2)*1000)
+    						   )/2;
+    			}
+    			else
+    			{
+    				//Write_serial_bluethoot_stream("caso3");
+    				Polinomio=Sensores_Normalizado[index]*(index+1)*1000;	
+    			}
 
-		Write_serial_bluethoot_double(Sensores_Normalizado[i]);
-		Write_serial_bluethoot_stream("   ");
-		if(Sensores_Normalizado[i]!=0)
-			Polinomio=(i+1)*1000*Sensores_Normalizado[i];
-		if(Sensores_Normalizado[i+1]!=0)
-		{
-			Polinomio=(Polinomio+Sensores_Normalizado[i+1]*(i+2)*1000)/2;
-		}	
-		// if(i!=0 &&)
-		// {
+    		}
+    		else
+    		{
+    			//Write_serial_bluethoot_stream("caso4");
+    			//Write_serial_bluethoot_uint16(index);
+    			Polinomio=Sensores_Normalizado[index]*(index+1)*1000;    			
+    		}
+    		index=NUM_SENSORS;
+    	}
+    	index++;
+    }while(index<NUM_SENSORS);
 
-		// 	Polinomio=(Sensores_Normalizado[i-1]*((i)*1000)+Sensores_Normalizado[i]*((i+1)*1000))/2;	
-		// }
-		// else
-		// {
-		// 	Polinomio=Sensores_Normalizado[i]*((i+1)*1000);
-		// }
-  	}
- 	Write_serial_bluethoot_stream("POS: ");
-   	Write_serial_bluethoot_double(Polinomio);
- //  	Write_serial_bluethoot_stream(" ");
-	// respuesta = map(posicion, 1900, 3700, -255, 255);
-	// Write_serial_bluethoot_stream("RP:");
-	// Write_serial_bluethoot_long(respuesta);
+ 	//Write_serial_bluethoot_stream("POS: ");
+   	//Write_serial_bluethoot_double(Polinomio);
+   	//Write_serial_bluethoot_stream(" ");
+	respuesta = map(Polinomio,0,7000, -255, 255);
+	//Write_serial_bluethoot_stream("RP:");
+	//Write_serial_bluethoot_long(respuesta);
 
-	Write_serial_bluethoot_nl();
+	//Write_serial_bluethoot_nl();
 
 	//1   2   3   4  5  6  7
 

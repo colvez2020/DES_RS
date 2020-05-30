@@ -19,6 +19,7 @@ void Write_serial_bluethoot_stream_nl(String DATA);
 void Write_serial_bluethoot_long(long DATA);
 void Write_serial_bluethoot_uint16(uint16_t DATA);
 void Write_serial_bluethoot_double(double DATA);
+void Write_serial_bluethoot_float(float DATA);
 void Write_serial_bluethoot_nl(void);
 void Ejecutar_modoAT(void);
 
