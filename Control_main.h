@@ -13,7 +13,7 @@
 
 #define CALIBRA           60
 #define NO_CALIBRA        61
-#define BUZZER_PIN        10
+#define BUZZER_PIN        53
 
 void Setup_Seguidor_linea(uint8_t modo);
 boolean Sintonizar_PID(void);

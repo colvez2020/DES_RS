@@ -75,6 +75,13 @@ void Write_serial_bluethoot_stream(String DATA)
   ComandoSerial.print(DATA);
 }
 
+void Write_serial_bluethoot_int(int DATA)
+{
+  ComandoSerial.print(DATA);
+ // ComandoSerial.println();
+}
+
+
 
 void Write_serial_bluethoot_uint16(uint16_t DATA)
 {

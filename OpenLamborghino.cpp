@@ -123,6 +123,8 @@ OpenLamborghino::OpenLamborghino(int PINBUZZER) {
 //	pinMode(HIZ, INPUT);
 //	pinMode(HDE, INPUT);
 	pinMode(PINBUZZER, OUTPUT);
+	  digitalWrite(PINBUZZER,LOW);
+
 	qtra.setTypeAnalog();
     qtra.setSensorPins((const uint8_t[]){A0, A1, A2, A3, A4, A5, A6}, NUM_SENSORS);
     qtra.setEmitterPin(EMITTER_PIN);
@@ -254,7 +256,7 @@ long OpenLamborghino::LineaNegra() {
     		Sensores_Normalizado[index]=0;
     	}
     	//Write_serial_bluethoot_double(Sensores_Normalizado[index]);
-		//Write_serial_bluethoot_stream("   ");
+		  //Write_serial_bluethoot_stream("   ");
     }
     index=0;
 
@@ -296,7 +298,7 @@ long OpenLamborghino::LineaNegra() {
 	respuesta = map(Polinomio,0,7000, -255, 255);
 	//Write_serial_bluethoot_stream("RP:");
 	//Write_serial_bluethoot_long(respuesta);
-
+  //Write_serial_bluethoot_nl();
 	//Write_serial_bluethoot_nl();
 
 	//1   2   3   4  5  6  7
@@ -325,6 +327,8 @@ long OpenLamborghino::PID(int POS, int setpoint, int lim) {
 
 	//Proporcional 
 	proportional = int(POS) - setpoint;
+  Write_serial_bluethoot_int(proportional);
+  Write_serial_bluethoot_nl();
 	//Derivativo
 	derivative = proportional - last_proportional;
 	last_proportional = proportional;

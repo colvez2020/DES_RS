@@ -21,6 +21,7 @@ void Write_serial_bluethoot_uint16(uint16_t DATA);
 void Write_serial_bluethoot_double(double DATA);
 void Write_serial_bluethoot_float(float DATA);
 void Write_serial_bluethoot_nl(void);
+void Write_serial_bluethoot_int(int DATA);
 void Ejecutar_modoAT(void);
 
 boolean Read_serial_Tableta(char* DATA);

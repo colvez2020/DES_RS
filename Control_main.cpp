@@ -7,8 +7,8 @@
 #include "Sistema_luces.h"
 
 //Valores por defecto.
-int Velocidad_base= 120; //Velovidad en linea recta
-int setpoint = 0;    //Sobre la linea
+int Velocidad_base= 170; //Velovidad en linea recta
+int setpoint = 30;    //Sobre la linea
 int gyroSpeed = Velocidad_base-255; //Accion de control maxima
 int Estado_config=0;
 
@@ -19,7 +19,7 @@ float Kinte = 0.1;
 
 OpenLamborghino Segidor_DID(BUZZER_PIN);
                             //14
-ControlMotor Control_DID(13,5,11,12,9,10); // MotorDer1,MotorDer2,MotorIzq1,MotorIzq2,PWM_Derecho,PWM_Izquierdo
+ControlMotor Control_DID(12,11,9,8,13,10); // MotorDer1,MotorDer2,MotorIzq1,MotorIzq2,PWM_Derecho,PWM_Izquierdo
                                             // IN01     ,IN02     ,IN11     ,IN12     ,PWM00      ,PWM10
 
 
@@ -109,22 +109,22 @@ void Control_Bluethoot(char Comando)
     case 'A': //Bloque de instrucciones 1;
     //          for (fade=0;fade>-200;fade-50) 
     //            control.Motor(fade,0);
-      Control_DID.Motor(-125,0);
+      Control_DID.Motor(255,0);
     break;
     case 'D': //Bloque de instrucciones 1;
     //      for (fade=0;fade<150;fade+50) 
     //        control.Motor(fade,100);
-      Control_DID.Motor(125,100);
+      Control_DID.Motor(170,100);
     break;
     case 'I': //Bloque de instrucciones 1;
     //  for (fade=0;fade<150;fade+50) 
     //    control.Motor(fade,-100);
-      Control_DID.Motor(125,-100);
+      Control_DID.Motor(170,-100);
     break;
     case 'B': //Bloque de instrucciones 1;
     // for (fade=0;fade<200;fade+50) 
     //   control.Motor(fade,0);              
-      Control_DID.Motor(125,0); //OK
+      Control_DID.Motor(-255,0); //OK
     break;
     case 'P': //Bloque de instrucciones 1;
       Control_DID.Motor(0,0);

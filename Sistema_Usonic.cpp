@@ -2,11 +2,11 @@
 #include "Sistema_Usonic.h"
 
 #define soundSpeed 343.0                      // Speed of sound in m/s (343m/s at 20°C with dry air)
-#define tSENS 6                               // Total number of sensors
+#define tSENS 3                               // Total number of sensors
 #define echoPin 2                             // Pin to collect echo signal --> This must be any interrupt pin INT0, pin tarjeta #2
 
 //Ultrasonic
-int triggerPins[tSENS] = {3, 4, 5, 6, 7, 8};  // Trigger pin for each sensor
+int triggerPins[tSENS] = {3, 4, 5};  // Trigger pin for each sensor
 volatile unsigned long startEcho;             // Place to store start time (interrupt)
 volatile unsigned long stopEcho;              // Place to store stop time (interrupt)
 

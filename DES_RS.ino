@@ -147,7 +147,7 @@ void loop()
   //Control Motor bluethoot
   if (Read_serial_bluethoot(&option_bluethoot,0))
   {
-    if(Comando_valido(option_bluethoot)==true)
+    //if(Comando_valido(option_bluethoot)==true)
       Control_Bluethoot(option_bluethoot);
   }
     
